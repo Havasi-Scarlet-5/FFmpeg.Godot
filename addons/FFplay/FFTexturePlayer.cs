@@ -9,16 +9,14 @@ namespace FFmpeg.Godot
     {
         public long pts;
         [Export]
-        public MeshInstance3D renderMesh;
-        [Export]
-        public int materialIndex = -1;
+        public TextureRect renderTexture;
         public Action<ImageTexture> OnDisplay = null;
         private Image image;
         private ImageTexture texture;
         private int framewidth;
         private int frameheight;
-        private byte[] framedata = new byte[0];
-        private Mutex mutex = new Mutex();
+        private byte[] framedata = [];
+        private Mutex mutex = new();
 
         public void PlayPacket(AVFrame frame)
         {
@@ -53,11 +51,8 @@ namespace FFmpeg.Godot
             {
                 return;
             }
-            bool newImage = false;
-            if (image == null)
-                image = Image.CreateEmpty(16, 16, false, Image.Format.Rgb8);
-            if (image.GetWidth() != framewidth || image.GetHeight() != frameheight)
-                newImage = true;
+            image ??= Image.CreateEmpty(16, 16, false, Image.Format.Rgb8);
+            bool newImage = image.GetWidth() != framewidth || image.GetHeight() != frameheight;
             image.SetData(framewidth, frameheight, false, Image.Format.Rgb8, data);
             // image.GenerateMipmaps();
         }
@@ -79,24 +74,16 @@ namespace FFmpeg.Godot
 
         public void Display(ImageTexture texture)
         {
-            if (IsInstanceValid(renderMesh))
+            if (IsInstanceValid(renderTexture))
             {
-                if (materialIndex == -1)
-                    SetMainTex(renderMesh.GetActiveMaterial(0), texture);
-                else
-                    SetMainTex(renderMesh.GetActiveMaterial(materialIndex), texture);
+                SetMainTex(renderTexture, texture);
             }
             OnDisplay?.Invoke(texture);
         }
 
-        private void SetMainTex(Material material, ImageTexture texture)
+        private void SetMainTex(TextureRect textureRect, ImageTexture texture)
         {
-            switch (material)
-            {
-                case StandardMaterial3D mat3d:
-                    mat3d.AlbedoTexture = texture;
-                    break;
-            }
+            textureRect.Texture = texture;
         }
 
         #region Utils

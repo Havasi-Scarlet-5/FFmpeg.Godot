@@ -1,0 +1,36 @@
+[gd_scene load_steps=5 format=3 uid="uid://cmfxk4te6s3x4"]
+
+[ext_resource type="Script" path="res://Player.cs" id="1_tlwyj"]
+[ext_resource type="Script" path="res://addons/FFplay/FFTexturePlayer.cs" id="2_mx4eh"]
+[ext_resource type="Script" path="res://addons/FFplay/FFAudioPlayer.cs" id="3_ot84f"]
+[ext_resource type="Script" path="res://addons/FFplay/FFPlayGodot.cs" id="4_wysqr"]
+
+[node name="Player" type="Node2D" node_paths=PackedStringArray("fFPlayGodot")]
+script = ExtResource("1_tlwyj")
+fFPlayGodot = NodePath("FFPlayGodot")
+path = "C:\\Users\\nhann\\Downloads\\Media\\a.mp4"
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="FFTexturePlayer" type="Node" parent="." node_paths=PackedStringArray("renderTexture")]
+script = ExtResource("2_mx4eh")
+renderTexture = NodePath("../CanvasLayer/TextureRect")
+
+[node name="FFAudioPlayer" type="Node" parent="." node_paths=PackedStringArray("audioSource")]
+script = ExtResource("3_ot84f")
+audioSource = NodePath("../AudioStreamPlayer")
+
+[node name="FFPlayGodot" type="Node" parent="." node_paths=PackedStringArray("texturePlayer", "audioPlayer")]
+script = ExtResource("4_wysqr")
+texturePlayer = NodePath("../FFTexturePlayer")
+audioPlayer = NodePath("../FFAudioPlayer")

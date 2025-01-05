@@ -11,14 +11,25 @@ config_version=5
 [application]
 
 config/name="FFmpeg.Godot"
-run/main_scene="res://test.tscn"
+run/main_scene="res://player.tscn"
 config/features=PackedStringArray("4.3", "C#", "Mobile")
 config/icon="res://icon.svg"
+
+[audio]
+
+driver/output_latency=1
+driver/output_latency.web=1
+driver/mix_rate=48000
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/window_width_override=1280
+window/size/window_height_override=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 
 [dotnet]
 
 project/assembly_name="FFmpeg.Godot"
-
-[rendering]
-
-renderer/rendering_method="mobile"
