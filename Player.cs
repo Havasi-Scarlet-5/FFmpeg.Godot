@@ -11,7 +11,6 @@ partial class Player : Node2D
 
 	public override void _Ready()
 	{
-		FFCore.Initialize();
 		fFPlayGodot.Play(path, path);
 	}
 

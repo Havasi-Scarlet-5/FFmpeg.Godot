@@ -21,6 +21,10 @@ driver/output_latency=1
 driver/output_latency.web=1
 driver/mix_rate=48000
 
+[autoload]
+
+FFCore="*res://addons/FFplay/FFCore.cs"
+
 [display]
 
 window/size/viewport_width=1920
@@ -33,3 +37,7 @@ window/stretch/aspect="expand"
 [dotnet]
 
 project/assembly_name="FFmpeg.Godot"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/FFplay/plugin.cfg")
