@@ -51,11 +51,11 @@ public sealed unsafe class VideoFrameConverter : IDisposable
         int j = 1;
         if (align < 0)
         {
-            for (uint i = 1; i <= 64; i*=2)
+            for (uint i = 1; i <= 64; i *= 2)
             {
-                if (Mathf.Abs(sourceFrame.linesize[0*i]) % i == 0 &&
-                Mathf.Abs(sourceFrame.linesize[1*i]) % i == 0 &&
-                Mathf.Abs(sourceFrame.linesize[2*i]) % i == 0)
+                if (Mathf.Abs(sourceFrame.linesize[0 * i]) % i == 0 &&
+                Mathf.Abs(sourceFrame.linesize[1 * i]) % i == 0 &&
+                Mathf.Abs(sourceFrame.linesize[2 * i]) % i == 0)
                 {
                 }
                 else

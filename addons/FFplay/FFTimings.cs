@@ -134,8 +134,9 @@ namespace FFmpeg.Godot
         public List<AVFrame> GetFrames()
         {
             if (!IsInputValid)
-                return new List<AVFrame>();
-            List<AVFrame> frames = new List<AVFrame>();
+                return [];
+
+            List<AVFrame> frames = [];
             while (pts >= currentPacket.dts || currentPacket.dts == ffmpeg.AV_NOPTS_VALUE)
             {
                 if (context.NextFrame(out AVPacket packet))
@@ -175,6 +176,7 @@ namespace FFmpeg.Godot
         {
             decoder?.Dispose();
             context?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

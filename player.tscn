@@ -10,9 +10,10 @@ script = ExtResource("1_tlwyj")
 fFPlayGodot = NodePath("FFPlayGodot")
 path = "C:\\Users\\nhann\\Downloads\\Media\\a.mp4"
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="BackgroundCanvasLayer" type="CanvasLayer" parent="."]
+layer = -1
 
-[node name="TextureRect" type="TextureRect" parent="CanvasLayer"]
+[node name="TextureRect" type="TextureRect" parent="BackgroundCanvasLayer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -24,7 +25,7 @@ expand_mode = 1
 
 [node name="FFTexturePlayer" type="Node" parent="." node_paths=PackedStringArray("renderTexture")]
 script = ExtResource("2_mx4eh")
-renderTexture = NodePath("../CanvasLayer/TextureRect")
+renderTexture = NodePath("../BackgroundCanvasLayer/TextureRect")
 
 [node name="FFAudioPlayer" type="Node" parent="." node_paths=PackedStringArray("audioSource")]
 script = ExtResource("3_ot84f")
@@ -34,3 +35,5 @@ audioSource = NodePath("../AudioStreamPlayer")
 script = ExtResource("4_wysqr")
 texturePlayer = NodePath("../FFTexturePlayer")
 audioPlayer = NodePath("../FFAudioPlayer")
+
+[node name="UICanvasLayer" type="CanvasLayer" parent="."]

@@ -113,7 +113,7 @@ namespace FFmpeg.Godot.Helpers
             for (p = (int*)fmt; *p != -1; p++)
             {
                 // if (*p == (int)HWPixelFormat)
-                    return (AVPixelFormat)(*p);
+                return (AVPixelFormat)(*p);
             }
 
             return AVPixelFormat.AV_PIX_FMT_NONE;
