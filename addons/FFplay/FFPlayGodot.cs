@@ -8,39 +8,48 @@ namespace FFmpeg.Godot
     public partial class FFPlayGodot : Node
     {
         public FFTimings videoTimings;
+
         public FFTimings audioTimings;
 
         private GodotThread thread;
 
         public event Action OnEndReached;
+
         public event Action OnVideoEndReached;
+
         public event Action OnAudioEndReached;
+
         public event Action OnError;
 
         [Export]
         public double videoOffset = 0d;
+
         [Export]
         public double audioOffset = 0d;
 
         [Export]
         public FFTexturePlayer texturePlayer;
+
         [Export]
         public FFAudioPlayer audioPlayer;
 
         private double timeOffset = 0d;
+
         private double pauseTime = 0d;
 
         public bool IsPlaying { get; private set; } = false;
+
         public bool IsStream { get; private set; } = false;
 
         public bool IsPaused { get; private set; } = false;
 
-        public double timeAsDouble => Time.GetTicksMsec() / 1000d;
+        public static double TimeAsDouble => Time.GetTicksMsec() / 1000d;
 
-        public double PlaybackTime => IsPaused ? pauseTime : timeAsDouble - timeOffset;
+        public double PlaybackTime => IsPaused ? pauseTime : TimeAsDouble - timeOffset;
 
-        public double VideoTime => timeAsDouble - timeOffset + videoOffset;
-        public double AudioTime => timeAsDouble - timeOffset + audioOffset;
+        public double VideoTime => TimeAsDouble - timeOffset + videoOffset;
+
+        public double AudioTime => TimeAsDouble - timeOffset + audioOffset;
 
         public void Play(string url)
         {
@@ -50,20 +59,30 @@ namespace FFmpeg.Godot
         public void Play(Stream streamV, Stream streamA)
         {
             IsPlaying = false;
+
             StopThread();
+
             OnDestroy();
+
             videoTimings = new FFTimings(streamV, AVMediaType.AVMEDIA_TYPE_VIDEO);
+
             audioTimings = new FFTimings(streamA, AVMediaType.AVMEDIA_TYPE_AUDIO);
+
             Init();
         }
 
         public void Play(string urlV, string urlA)
         {
             IsPlaying = false;
+
             StopThread();
+
             OnDestroy();
+
             videoTimings = new FFTimings(urlV, AVMediaType.AVMEDIA_TYPE_VIDEO);
+
             audioTimings = new FFTimings(urlA, AVMediaType.AVMEDIA_TYPE_AUDIO);
+
             Init();
         }
 
@@ -71,25 +90,33 @@ namespace FFmpeg.Godot
         {
             if (audioTimings.IsInputValid)
                 audioPlayer.Init(audioTimings.decoder.SampleRate, audioTimings.decoder.Channels, audioTimings.decoder.SampleFormat);
+
             if (videoTimings.IsInputValid)
             {
-                timeOffset = timeAsDouble - videoTimings.StartTime;
+                timeOffset = TimeAsDouble - videoTimings.StartTime;
                 IsStream = Mathf.Abs(videoTimings.StartTime) > 5d;
             }
             else
-                timeOffset = timeAsDouble;
+                timeOffset = TimeAsDouble;
+
             if (!videoTimings.IsInputValid && !audioTimings.IsInputValid)
             {
                 IsPaused = true;
+
                 StopThread();
+
                 GD.PrintErr("AV not found");
+
                 IsPlaying = false;
+
                 OnError?.Invoke();
             }
             else
             {
                 audioPlayer.Resume();
+
                 RunThread();
+
                 IsPlaying = true;
             }
         }
@@ -98,28 +125,38 @@ namespace FFmpeg.Godot
         {
             if (IsStream)
                 return;
+
             StopThread();
-            timeOffset = timeAsDouble - timestamp;
+
+            timeOffset = TimeAsDouble - timestamp;
+
             pauseTime = timestamp;
-            if (videoTimings != null)
-            {
-                videoTimings.Seek(VideoTime);
-            }
+
+            videoTimings?.Seek(VideoTime);
+
             if (audioTimings != null)
             {
                 audioTimings.Seek(AudioTime);
+
                 audioTimings.GetFrames();
+
                 audioPlayer.Seek();
             }
+
             RunThread();
+
+            if (!IsPlaying)
+                StopThread();
         }
 
         public double GetLength()
         {
             if (videoTimings != null && videoTimings.IsInputValid)
                 return videoTimings.GetLength();
+
             if (audioTimings != null && audioTimings.IsInputValid)
                 return audioTimings.GetLength();
+
             return 0d;
         }
 
@@ -127,10 +164,15 @@ namespace FFmpeg.Godot
         {
             if (IsPaused)
                 return;
+
             pauseTime = PlaybackTime;
+
             audioPlayer.Pause();
+
             IsPaused = true;
+
             StopThread();
+
             IsPlaying = false;
         }
 
@@ -138,11 +180,17 @@ namespace FFmpeg.Godot
         {
             if (!IsPaused)
                 return;
+
             StopThread();
-            timeOffset = timeAsDouble - pauseTime;
+
+            timeOffset = TimeAsDouble - pauseTime;
+
             audioPlayer.Resume();
+
             IsPaused = false;
+
             RunThread();
+
             IsPlaying = true;
         }
 
@@ -150,26 +198,26 @@ namespace FFmpeg.Godot
         {
             if (!IsPaused)
             {
-                if (!thread.IsAlive() && IsPlaying)
-                {
-                    // StopThread();
-                    // RunThread();
-                }
                 if (videoTimings != null)
                 {
                     if (videoTimings.IsEndOfFile())
                     {
                         Pause();
+
                         OnVideoEndReached?.Invoke();
+
                         OnEndReached?.Invoke();
                     }
                 }
+
                 if (audioTimings != null)
                 {
                     if (audioTimings.IsEndOfFile())
                     {
                         Pause();
+
                         OnAudioEndReached?.Invoke();
+
                         OnEndReached?.Invoke();
                     }
                 }
@@ -179,9 +227,9 @@ namespace FFmpeg.Godot
         private void ThreadUpdate()
         {
             GD.Print("ThreadUpdate Start");
+
             while (!IsPaused)
             {
-                OS.DelayMsec(3);
                 try
                 {
                     if (videoTimings != null)
@@ -189,6 +237,7 @@ namespace FFmpeg.Godot
                         videoTimings.Update(VideoTime);
                         texturePlayer.PlayPacket(videoTimings.GetFrame());
                     }
+
                     if (audioTimings != null)
                     {
                         audioTimings.Update(AudioTime);
@@ -201,14 +250,18 @@ namespace FFmpeg.Godot
                     break;
                 }
             }
+
             GD.Print("ThreadUpdate Done");
         }
 
         private void OnDestroy()
         {
             videoTimings?.Dispose();
+
             videoTimings = null;
+
             audioTimings?.Dispose();
+
             audioTimings = null;
         }
 
@@ -216,9 +269,9 @@ namespace FFmpeg.Godot
         {
             if (thread.IsAlive())
                 throw new Exception();
-            // if (thread.IsAlive() && thread.IsStarted())
-                // StopThread();
+
             IsPaused = false;
+
             thread.Start(Callable.From(ThreadUpdate));
         }
 
@@ -226,9 +279,13 @@ namespace FFmpeg.Godot
         {
             if (!thread.IsStarted())
                 return;
+
             bool paused = IsPaused;
+
             IsPaused = true;
+
             thread.WaitToFinish();
+
             IsPaused = paused;
         }
 
@@ -245,7 +302,9 @@ namespace FFmpeg.Godot
         public override void _ExitTree()
         {
             IsPaused = true;
+
             StopThread();
+
             OnDestroy();
         }
     }
