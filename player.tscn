@@ -1,9 +1,9 @@
 [gd_scene load_steps=5 format=3 uid="uid://cmfxk4te6s3x4"]
 
-[ext_resource type="Script" path="res://Player.cs" id="1_tlwyj"]
-[ext_resource type="Script" path="res://addons/FFplay/FFTexturePlayer.cs" id="2_mx4eh"]
-[ext_resource type="Script" path="res://addons/FFplay/FFAudioPlayer.cs" id="3_ot84f"]
-[ext_resource type="Script" path="res://addons/FFplay/FFPlayGodot.cs" id="4_wysqr"]
+[ext_resource type="Script" uid="uid://dcgvwukl3apcs" path="res://Player.cs" id="1_tlwyj"]
+[ext_resource type="Script" uid="uid://cw54n5khc0ry3" path="res://addons/FFplay/FFTexturePlayer.cs" id="2_mx4eh"]
+[ext_resource type="Script" uid="uid://dusiuchuo0ol3" path="res://addons/FFplay/FFAudioPlayer.cs" id="3_ot84f"]
+[ext_resource type="Script" uid="uid://cv1h76qn4r4r2" path="res://addons/FFplay/FFPlayGodot.cs" id="4_wysqr"]
 
 [node name="Player" type="Node2D" node_paths=PackedStringArray("fFPlayGodot")]
 script = ExtResource("1_tlwyj")

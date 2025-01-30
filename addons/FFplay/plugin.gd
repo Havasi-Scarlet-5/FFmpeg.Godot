@@ -5,12 +5,12 @@ const AUTOLOAD_NAME: String = "FFCore"
 
 var export_handler: FFmpegExportHandler = null
 
-func _enable_plugin() -> void:
+func _enter_tree() -> void:
     export_handler = FFmpegExportHandler.new()
     add_export_plugin(export_handler)
     add_autoload_singleton(AUTOLOAD_NAME, "res://addons/FFplay/FFCore.cs")
 
-func _disable_plugin() -> void:
+func _exit_tree() -> void:
     remove_autoload_singleton(AUTOLOAD_NAME)
     remove_export_plugin(export_handler)
     export_handler = null
