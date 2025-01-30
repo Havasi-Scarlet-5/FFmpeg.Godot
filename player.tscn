@@ -8,7 +8,7 @@
 [node name="Player" type="Node2D" node_paths=PackedStringArray("fFPlayGodot", "hSlider", "label", "label2")]
 script = ExtResource("1_tlwyj")
 fFPlayGodot = NodePath("FFPlayGodot")
-path = "C:\\Users\\nhann\\Downloads\\Sou化けそうなココロMV.mp4"
+path = "C:\\Users\\nhann\\Downloads\\sou.mp4"
 hSlider = NodePath("UICanvasLayer/Panel/VBoxContainer/HBoxContainer2/HSlider")
 label = NodePath("UICanvasLayer/Panel/VBoxContainer/HBoxContainer/Label")
 label2 = NodePath("UICanvasLayer/Panel/VBoxContainer/HBoxContainer/Label2")
@@ -36,7 +36,6 @@ audioSource = NodePath("../AudioStreamPlayer")
 
 [node name="FFPlayGodot" type="Node" parent="." node_paths=PackedStringArray("texturePlayer", "audioPlayer")]
 script = ExtResource("4_wysqr")
-audioOffset = -0.17
 texturePlayer = NodePath("../FFTexturePlayer")
 audioPlayer = NodePath("../FFAudioPlayer")
 

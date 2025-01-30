@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading;
 using Godot;
 
 namespace FFmpeg.Godot
@@ -11,7 +12,7 @@ namespace FFmpeg.Godot
 
         public FFTimings audioTimings;
 
-        private GodotThread thread;
+        private Thread thread;
 
         public event Action OnEndReached;
 
@@ -50,6 +51,10 @@ namespace FFmpeg.Godot
         public double VideoTime => TimeAsDouble - timeOffset + videoOffset;
 
         public double AudioTime => TimeAsDouble - timeOffset + audioOffset;
+
+        private volatile bool isSeeking = false;
+
+        private double seekTime = 0;
 
         public void Play(string url)
         {
@@ -126,27 +131,16 @@ namespace FFmpeg.Godot
             if (IsStream)
                 return;
 
-            StopThread();
+            isSeeking = true;
 
-            timeOffset = TimeAsDouble - timestamp;
-
-            pauseTime = timestamp;
-
-            videoTimings?.Seek(VideoTime);
-
-            if (audioTimings != null)
-            {
-                audioTimings.Seek(AudioTime);
-
-                audioTimings.GetFrames();
-
-                audioPlayer.Seek();
-            }
-
-            RunThread();
+            seekTime = timestamp;
 
             if (!IsPlaying)
-                StopThread();
+            {
+                PerformSeek();
+                isSeeking = false;
+                UpdateContent();
+            }
         }
 
         public double GetLength()
@@ -232,17 +226,16 @@ namespace FFmpeg.Godot
             {
                 try
                 {
-                    if (videoTimings != null)
+                    if (isSeeking)
                     {
-                        videoTimings.Update(VideoTime);
-                        texturePlayer.PlayPacket(videoTimings.GetFrame());
+                        PerformSeek();
+
+                        isSeeking = false;
+
+                        continue;
                     }
 
-                    if (audioTimings != null)
-                    {
-                        audioTimings.Update(AudioTime);
-                        audioPlayer.PlayPackets(audioTimings.GetFrames());
-                    }
+                    UpdateContent();
                 }
                 catch (Exception e)
                 {
@@ -252,6 +245,41 @@ namespace FFmpeg.Godot
             }
 
             GD.Print("ThreadUpdate Done");
+        }
+
+        private void PerformSeek()
+        {
+            GD.Print($"Seeking to {seekTime}");
+
+            timeOffset = TimeAsDouble - seekTime;
+
+            pauseTime = seekTime;
+
+            videoTimings?.Seek(VideoTime);
+
+            if (audioTimings != null)
+            {
+                audioTimings.Seek(AudioTime);
+
+                audioTimings.GetFrames();
+
+                audioPlayer.CallDeferred("Seek");
+            }
+        }
+
+        private void UpdateContent()
+        {
+            if (videoTimings != null)
+            {
+                videoTimings.Update(VideoTime);
+                texturePlayer.PlayPacket(videoTimings.GetFrame());
+            }
+
+            if (audioTimings != null)
+            {
+                audioTimings.Update(AudioTime);
+                audioPlayer.PlayPackets(audioTimings.GetFrames());
+            }
         }
 
         private void OnDestroy()
@@ -267,24 +295,26 @@ namespace FFmpeg.Godot
 
         private void RunThread()
         {
-            if (thread.IsAlive())
-                throw new Exception();
+            if (thread.IsAlive)
+                return;
 
             IsPaused = false;
 
-            thread.Start(Callable.From(ThreadUpdate));
+            thread = new Thread(ThreadUpdate);
+
+            thread.Start();
         }
 
         private void StopThread()
         {
-            if (!thread.IsStarted())
+            if (!thread.IsAlive)
                 return;
 
             bool paused = IsPaused;
 
             IsPaused = true;
 
-            thread.WaitToFinish();
+            thread.Join();
 
             IsPaused = paused;
         }
@@ -296,7 +326,7 @@ namespace FFmpeg.Godot
 
         public override void _EnterTree()
         {
-            thread = new GodotThread();
+            thread = new Thread(ThreadUpdate);
         }
 
         public override void _ExitTree()

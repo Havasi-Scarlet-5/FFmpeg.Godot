@@ -212,6 +212,10 @@ namespace FFmpeg.Godot
 
             context?.Dispose();
 
+            GC.Collect();
+
+            GC.WaitForPendingFinalizers();
+
             GC.SuppressFinalize(this);
         }
     }

@@ -19,12 +19,26 @@ partial class Player : Node2D
 	[Export]
 	private Label label2;
 
+	private bool seeking = false;
+
 	public override void _Ready()
 	{
 		fFPlayGodot.Play(path, path);
 		hSlider.MaxValue = fFPlayGodot.GetLength();
 		label2.Text = TimeSpan.FromSeconds(fFPlayGodot.GetLength()).ToString("mm':'ss':'fff");
+		hSlider.DragStarted += OnHSliderDragStarted;
+		hSlider.DragEnded += OnHSliderDragEnded;
 		// fFPlayGodot.Pause();
+	}
+
+	private void OnHSliderDragEnded(bool valueChanged)
+	{
+		seeking = false;
+	}
+
+	private void OnHSliderDragStarted()
+	{
+		seeking = true;
 	}
 
 	public override void _Input(InputEvent @event)
@@ -45,7 +59,10 @@ partial class Player : Node2D
 
 	public override void _Process(double delta)
 	{
-		hSlider.Value = fFPlayGodot.PlaybackTime;
+		if (!seeking)
+			hSlider.Value = fFPlayGodot.PlaybackTime;
+		else
+			fFPlayGodot.Seek(hSlider.Value);
 		label.Text = TimeSpan.FromSeconds(fFPlayGodot.PlaybackTime).ToString("mm':'ss':'fff");
 		// GD.Print(string.Format("Time: {0:0.000} / Length: {1:0.000}", FFPlayGodot.TimeAsDouble, fFPlayGodot.GetLength()));
 	}
